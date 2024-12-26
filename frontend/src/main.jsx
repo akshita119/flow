@@ -28,6 +28,7 @@ import BloodBankRegistrationForm from "./pages/BloodBankRegistrationForm.jsx";
 import BloodBankManagement from "./pages/BloodBankManagement.jsx";
 import DonorRequestsPage from "./pages/DonorRequestsPage.jsx";
 import UpdateDonor from "./pages/UpdateDonor.jsx";
+import RegisterAuthority from "./pages/RegisterAuthority.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -38,6 +39,7 @@ const router = createBrowserRouter(
       <Route path="/register-donor" element={<DonorRegistrationForm />} />
       <Route path="/login-donor" element={<LoginDonor />} />
       <Route path="/register-hospital" element={<RegisterHospital />} />
+      <Route path="/register-authority" element={<RegisterAuthority />} />
       <Route path="/login-hospital" element={<LoginHospital />} />
       <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
       <Route path="/hospitalist" element={<HospitalList />} />
