@@ -4,54 +4,73 @@ import { Link, useNavigate } from "react-router-dom";
 function DonorRegistrationForm() {
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
+    ABHA: "",
+    email: "",
+    password: "",
+    mobile: "",
     name: "",
-    bloodType: "",
     age: "",
-    city: "",
-    contact: "",
-    pinCode: "",
-    gender: "", // Added gender field
-    email: "", // Added email field
-    password: "", // Added password field
+    dob: "",
+    fathersName: "",
+    gender: "",
+    address: {
+      street: "",
+      city: "",
+      pincode: "",
+      state: "",
+    },
+    bloodGroup: "",
   });
 
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  // Handle form data changes
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    if (name.startsWith("address.")) {
+      const field = name.split(".")[1];
+      setFormData((prevData) => ({
+        ...prevData,
+        address: { ...prevData.address, [field]: value },
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
-  // Validate form data
   const validateForm = () => {
     if (
-      !formData.name ||
-      !formData.bloodType ||
-      !formData.age ||
-      !formData.city ||
-      !formData.contact ||
-      !formData.pinCode ||
-      !formData.gender ||
+      !formData.ABHA ||
       !formData.email ||
-      !formData.password
+      !formData.password ||
+      !formData.mobile ||
+      !formData.name ||
+      !formData.age ||
+      !formData.dob ||
+      !formData.fathersName ||
+      !formData.gender ||
+      !formData.address.street ||
+      !formData.address.city ||
+      !formData.address.pincode ||
+      !formData.address.state ||
+      !formData.bloodGroup
     ) {
       setError("All fields are required!");
+      return false;
+    }
+    if (isNaN(formData.ABHA)) {
+      setError("ABHA must be a valid number!");
       return false;
     }
     if (isNaN(formData.age) || formData.age <= 0) {
       setError("Age must be a positive number!");
       return false;
     }
-    if (isNaN(formData.contact) || formData.contact.length < 10) {
-      setError("Please enter a valid contact number!");
-      return false;
-    }
-    if (isNaN(formData.pinCode) || formData.pinCode.length !== 6) {
-      setError("Pin code must be a 6-digit number!");
+    if (isNaN(formData.mobile) || formData.mobile.length !== 10) {
+      setError("Please enter a valid 10-digit mobile number!");
       return false;
     }
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -62,30 +81,28 @@ function DonorRegistrationForm() {
       setError("Password must be at least 6 characters long!");
       return false;
     }
+    if (isNaN(formData.address.pincode) || formData.address.pincode.length !== 6) {
+      setError("Pincode must be a 6-digit number!");
+      return false;
+    }
     return true;
   };
 
-  // Handle form submission
-  // const token = localStorage.getItem("token");
   const registerDonor = async () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     try {
-      const response = await fetch(
-       `${API_BASE_URL}/api/auth/register/donor`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/auth/register/donor`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to register donor");
       }
       navigate("/login-donor");
-
       setSuccess(true);
       setError("");
       console.log("Registration successful");
@@ -94,10 +111,8 @@ function DonorRegistrationForm() {
     }
   };
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("formdata", formData);
     if (validateForm()) {
       registerDonor();
     }
@@ -108,6 +123,7 @@ function DonorRegistrationForm() {
       // Perform any additional actions on successful registration
     }
   }, [success]);
+
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col">
       <section className="bg-[#E63946] text-white text-center py-16">
@@ -128,182 +144,27 @@ function DonorRegistrationForm() {
 
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-          <div className="mb-4">
-            <label
-              htmlFor="name"
-              className="block text-lg font-medium text-gray-700"
-            >
-              Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-              placeholder="Enter your full name"
-            />
-          </div>
+          {/* Fields for ABHA, Email, Password */}
+          <InputField label="ABHA Number" name="ABHA" value={formData.ABHA} handleChange={handleChange} />
+          <InputField label="Email" name="email" value={formData.email} handleChange={handleChange} />
+          <InputField label="Password" name="password" value={formData.password} handleChange={handleChange} type="password" />
 
-          <div className="mb-4">
-            <label
-              htmlFor="bloodType"
-              className="block text-lg font-medium text-gray-700"
-            >
-              Blood Type
-            </label>
-            <select
-              id="bloodType"
-              name="bloodType"
-              value={formData.bloodType}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-            >
-              <option value="">Select Blood Type</option>
-              <option value="A+">A+</option>
-              <option value="A-">A-</option>
-              <option value="B+">B+</option>
-              <option value="B-">B-</option>
-              <option value="O+">O+</option>
-              <option value="O-">O-</option>
-              <option value="AB+">AB+</option>
-              <option value="AB-">AB-</option>
-            </select>
-          </div>
+          {/* Additional Fields */}
+          <InputField label="Mobile" name="mobile" value={formData.mobile} handleChange={handleChange} />
+          <InputField label="Name" name="name" value={formData.name} handleChange={handleChange} />
+          <InputField label="Age" name="age" value={formData.age} handleChange={handleChange} />
+          <InputField label="Date of Birth" name="dob" value={formData.dob} handleChange={handleChange} type="date" />
+          <InputField label="Father's Name" name="fathersName" value={formData.fathersName} handleChange={handleChange} />
 
-          <div className="mb-4">
-            <label
-              htmlFor="age"
-              className="block text-lg font-medium text-gray-700"
-            >
-              Age
-            </label>
-            <input
-              type="number"
-              id="age"
-              name="age"
-              value={formData.age}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-              placeholder="Enter your age"
-            />
-          </div>
+          {/* Address Fields */}
+          <InputField label="Street" name="address.street" value={formData.address.street} handleChange={handleChange} />
+          <InputField label="City" name="address.city" value={formData.address.city} handleChange={handleChange} />
+          <InputField label="Pincode" name="address.pincode" value={formData.address.pincode} handleChange={handleChange} />
+          <InputField label="State" name="address.state" value={formData.address.state} handleChange={handleChange} />
 
-          <div className="mb-4">
-            <label
-              htmlFor="city"
-              className="block text-lg font-medium text-gray-700"
-            >
-              City
-            </label>
-            <input
-              type="text"
-              id="city"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-              placeholder="Enter your city"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label
-              htmlFor="contact"
-              className="block text-lg font-medium text-gray-700"
-            >
-              Contact Number
-            </label>
-            <input
-              type="text"
-              id="contact"
-              name="contact"
-              value={formData.contact}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-              placeholder="Enter your contact number"
-            />
-          </div>
-
-          {/* Pin Code field */}
-          <div className="mb-4">
-            <label
-              htmlFor="pinCode"
-              className="block text-lg font-medium text-gray-700"
-            >
-              Pin Code
-            </label>
-            <input
-              type="text"
-              id="pinCode"
-              name="pinCode"
-              value={formData.pinCode}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-              placeholder="Enter your pin code"
-            />
-          </div>
-
-          {/* Gender dropdown */}
-          <div className="mb-4">
-            <label
-              htmlFor="gender"
-              className="block text-lg font-medium text-gray-700"
-            >
-              Gender
-            </label>
-            <select
-              id="gender"
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-
-          {/* Email field */}
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-lg font-medium text-gray-700"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-              placeholder="Enter your email"
-            />
-          </div>
-
-          {/* Password field */}
-          <div className="mb-4">
-            <label
-              htmlFor="password"
-              className="block text-lg font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-              placeholder="Enter your password"
-            />
-          </div>
+          {/* Blood Group and Gender */}
+          <DropdownField label="Blood Group" name="bloodGroup" value={formData.bloodGroup} handleChange={handleChange} options={["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"]} />
+          <DropdownField label="Gender" name="gender" value={formData.gender} handleChange={handleChange} options={["Male", "Female", "Others"]} />
 
           <div className="flex justify-center mt-6">
             <button
@@ -324,6 +185,51 @@ function DonorRegistrationForm() {
           </Link>
         </p>
       </section>
+    </div>
+  );
+}
+
+// Reusable InputField Component
+function InputField({ label, name, value, handleChange, type = "text" }) {
+  return (
+    <div className="mb-4">
+      <label htmlFor={name} className="block text-lg font-medium text-gray-700">
+        {label}
+      </label>
+      <input
+        type={type}
+        id={name}
+        name={name}
+        value={value}
+        onChange={handleChange}
+        className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
+        placeholder={`Enter your ${label.toLowerCase()}`}
+      />
+    </div>
+  );
+}
+
+// Reusable DropdownField Component
+function DropdownField({ label, name, value, handleChange, options }) {
+  return (
+    <div className="mb-4">
+      <label htmlFor={name} className="block text-lg font-medium text-gray-700">
+        {label}
+      </label>
+      <select
+        id={name}
+        name={name}
+        value={value}
+        onChange={handleChange}
+        className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
+      >
+        <option value="">Select {label}</option>
+        {options.map((option, index) => (
+          <option key={index} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }

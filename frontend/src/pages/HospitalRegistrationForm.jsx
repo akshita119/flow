@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"
-
+import { useNavigate } from "react-router-dom";
 
 function RegisterHospital() {
   const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [licenseNumber, setLicenseNumber] = useState("");
-  const [pinCode, setPinCode] = useState("");
+  const [DMHORegNo, setDMHORegNo] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [pincode, setPincode] = useState("");
+  const [state, setState] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
@@ -20,18 +21,20 @@ function RegisterHospital() {
     // Validation
     if (
       !name ||
-      !address ||
-      !city ||
-      !licenseNumber ||
-      !pinCode ||
+      !DMHORegNo ||
       !email ||
-      !password
+      !password ||
+      !mobile ||
+      !street ||
+      !city ||
+      !pincode ||
+      !state
     ) {
       setError("Please fill in all the fields.");
       return;
     }
 
-    if (!/^\d{6}$/.test(pinCode)) {
+    if (!/^\d{6}$/.test(pincode)) {
       setError("Pin Code must be a 6-digit number.");
       return;
     }
@@ -46,29 +49,34 @@ function RegisterHospital() {
       return;
     }
 
+    if (!/^\d{10}$/.test(mobile)) {
+      setError("Mobile number must be a 10-digit number.");
+      return;
+    }
+
     try {
       // API call for hospital registration
-     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-     const response = await fetch(
-       `${API_BASE_URL}/api/auth/register/hospital`,
-       {
-         method: "POST",
-         headers: {
-           "Content-Type": "application/json",
-         },
-         body: JSON.stringify({
-           name,
-           address,
-           city,
-           licenseNumber,
-           pinCode,
-           email,
-           password,
-         }),
-       }
-     );
-
+      const response = await fetch(`${API_BASE_URL}/api/auth/register/hospital`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          DMHORegNo,
+          email,
+          password,
+          mobile,
+          address: {
+            street,
+            city,
+            pincode,
+            state,
+          },
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to register the hospital. Please try again.");
@@ -77,14 +85,16 @@ function RegisterHospital() {
       setSuccess(true);
       setError("");
       alert("Hospital registered successfully!");
-      navigate("/")
+      navigate("/");
     } catch (err) {
       setError(err.message);
     }
   };
 
   return (
+    
     <div className="bg-gray-100 min-h-screen flex items-center justify-center py-16">
+      
       <div className="bg-white shadow-lg p-8 rounded-lg max-w-md w-full">
         <h2 className="text-3xl font-bold text-red-500 mb-6 text-center">
           Register as a Hospital
@@ -114,61 +124,16 @@ function RegisterHospital() {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="address" className="block text-gray-700">
-              Address
+            <label htmlFor="DMHORegNo" className="block text-gray-700">
+              DMHO Registration Number
             </label>
             <input
               type="text"
-              id="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              id="DMHORegNo"
+              value={DMHORegNo}
+              onChange={(e) => setDMHORegNo(e.target.value)}
               className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-              placeholder="Enter address"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="city" className="block text-gray-700">
-              City
-            </label>
-            <input
-              type="text"
-              id="city"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-              placeholder="Enter city"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="licenseNumber" className="block text-gray-700">
-              License Number
-            </label>
-            <input
-              type="text"
-              id="licenseNumber"
-              value={licenseNumber}
-              onChange={(e) => setLicenseNumber(e.target.value)}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-              placeholder="Enter license number"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="pinCode" className="block text-gray-700">
-              Pin Code
-            </label>
-            <input
-              type="text"
-              id="pinCode"
-              value={pinCode}
-              onChange={(e) => setPinCode(e.target.value)}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-              placeholder="Enter pin code"
+              placeholder="Enter DMHO registration number"
               required
             />
           </div>
@@ -199,6 +164,81 @@ function RegisterHospital() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
               placeholder="Enter password"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="mobile" className="block text-gray-700">
+              Mobile Number
+            </label>
+            <input
+              type="text"
+              id="mobile"
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
+              placeholder="Enter mobile number"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="street" className="block text-gray-700">
+              Street
+            </label>
+            <input
+              type="text"
+              id="street"
+              value={street}
+              onChange={(e) => setStreet(e.target.value)}
+              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
+              placeholder="Enter street address"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="city" className="block text-gray-700">
+              City
+            </label>
+            <input
+              type="text"
+              id="city"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
+              placeholder="Enter city"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="pincode" className="block text-gray-700">
+              Pin Code
+            </label>
+            <input
+              type="text"
+              id="pincode"
+              value={pincode}
+              onChange={(e) => setPincode(e.target.value)}
+              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
+              placeholder="Enter pin code"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="state" className="block text-gray-700">
+              State
+            </label>
+            <input
+              type="text"
+              id="state"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
+              placeholder="Enter state"
               required
             />
           </div>

@@ -27,6 +27,9 @@ const UserSchema = new mongoose.Schema(
     },
 
     noOfPrevDonations: { type: Number, required: true, default: 0 }, 
+    donations: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Donation" }
+    ],
     medicalStatus: {
       type: String,
       required: true,
