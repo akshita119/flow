@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 function RequestBlood() {
   const [formData, setFormData] = useState({
+    abha:"",
     bloodType: "",
     quantity: "",
     urgency: "",
@@ -36,8 +37,9 @@ function RequestBlood() {
         : formData.newAddress;
 
     const requestBody = {
-      bloodType: formData.bloodType,
-      quantity: formData.quantity,
+      abha: formData.abha,
+      bloodGroup: formData.bloodType,
+      unitsRequired: formData.quantity,
       urgency: formData.urgency,
       message: formData.message,
       address: finalAddress,
@@ -125,6 +127,19 @@ function RequestBlood() {
           />
         </div>
 
+        <div>
+          <label className="block text-gray-700 text-lg font-semibold mb-2">
+            ABHA
+          </label>
+          <input
+          type="number"
+          name="abha"
+          value={formData.abha}
+          onChange={handleChange}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2"
+          />
+        </div>
+
         {/* Urgency */}
         <div>
           <label className="block text-gray-700 text-lg font-semibold mb-2">
@@ -138,9 +153,9 @@ function RequestBlood() {
             required
           >
             <option value="">Select Urgency</option>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
+            <option value="regular">Regular</option>
+            <option value="urgent">Urgent</option>
+            <option value="life-saving">life-saving</option>
           </select>
         </div>
 

@@ -1,21 +1,25 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-function BloodBankRegistrationForm() {
+function DonorRegistrationForm() {
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    DMHORegNo: "",
+    ABHA: "",
     email: "",
     password: "",
     mobile: "",
+    name: "",
+    age: "",
+    dob: "",
+    fathersName: "",
+    gender: "",
     address: {
       street: "",
       city: "",
       pincode: "",
       state: "",
     },
-    componentSeparationAvailable: "",
+    bloodGroup: "",
   });
 
   const [error, setError] = useState("");
@@ -39,23 +43,32 @@ function BloodBankRegistrationForm() {
 
   const validateForm = () => {
     if (
-      
+      !formData.ABHA ||
       !formData.email ||
       !formData.password ||
       !formData.mobile ||
       !formData.name ||
-      !formData.DMHORegNo ||
+      !formData.age ||
+      !formData.dob ||
+      !formData.fathersName ||
+      !formData.gender ||
       !formData.address.street ||
       !formData.address.city ||
       !formData.address.pincode ||
       !formData.address.state ||
-      !formData.componentSeparationAvailable
+      !formData.bloodGroup
     ) {
       setError("All fields are required!");
       return false;
     }
-    
-    
+    if (isNaN(formData.ABHA)) {
+      setError("ABHA must be a valid number!");
+      return false;
+    }
+    if (isNaN(formData.age) || formData.age <= 0) {
+      setError("Age must be a positive number!");
+      return false;
+    }
     if (isNaN(formData.mobile) || formData.mobile.length !== 10) {
       setError("Please enter a valid 10-digit mobile number!");
       return false;
@@ -75,10 +88,10 @@ function BloodBankRegistrationForm() {
     return true;
   };
 
-  const registerBloodBank = async () => {
+  const registerDonor = async () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/register/bloodBank`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register/donor`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -87,9 +100,9 @@ function BloodBankRegistrationForm() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to register Blood Bank");
+        throw new Error("Failed to register donor");
       }
-      navigate("/login-bloodBank");
+      navigate("/login-donor");
       setSuccess(true);
       setError("");
       console.log("Registration successful");
@@ -101,7 +114,7 @@ function BloodBankRegistrationForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      registerBloodBank();
+      registerDonor();
     }
   };
 
@@ -114,9 +127,9 @@ function BloodBankRegistrationForm() {
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col">
       <section className="bg-[#E63946] text-white text-center py-16">
-        <h1 className="text-4xl font-bold">Register as a Blood Bank</h1>
+        <h1 className="text-4xl font-bold">Register as a Donor</h1>
         <p className="mt-4 text-xl">
-          Join the cause and start saving lives.
+          Join the cause and start saving lives by donating blood.
         </p>
       </section>
 
@@ -126,18 +139,22 @@ function BloodBankRegistrationForm() {
           className="max-w-lg mx-auto bg-gray-50 p-8 rounded-lg shadow-lg"
         >
           <h2 className="text-2xl font-semibold text-center text-[#E63946] mb-6">
-          Blood Bank Registration Form
+            Donor Registration Form
           </h2>
 
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-          <InputField label="Name of Blood Bank" name="name" value={formData.name} handleChange={handleChange} />
-          <InputField label="DMHO Registration Number" name="DMHORegNo" value={formData.DMHORegNo} handleChange={handleChange} />
-          <InputField label="Is component separation available ?" name="componentSeparationAvailable" value={formData.componentSeparationAvailable} handleChange={handleChange} />
+
+          {/* Fields for ABHA, Email, Password */}
+          <InputField label="ABHA Number" name="ABHA" value={formData.ABHA} handleChange={handleChange} />
           <InputField label="Email" name="email" value={formData.email} handleChange={handleChange} />
           <InputField label="Password" name="password" value={formData.password} handleChange={handleChange} type="password" />
 
           {/* Additional Fields */}
           <InputField label="Mobile" name="mobile" value={formData.mobile} handleChange={handleChange} />
+          <InputField label="Name" name="name" value={formData.name} handleChange={handleChange} />
+          <InputField label="Age" name="age" value={formData.age} handleChange={handleChange} />
+          <InputField label="Date of Birth" name="dob" value={formData.dob} handleChange={handleChange} type="date" />
+          <InputField label="Father's Name" name="fathersName" value={formData.fathersName} handleChange={handleChange} />
 
           {/* Address Fields */}
           <InputField label="Street" name="address.street" value={formData.address.street} handleChange={handleChange} />
@@ -145,13 +162,16 @@ function BloodBankRegistrationForm() {
           <InputField label="Pincode" name="address.pincode" value={formData.address.pincode} handleChange={handleChange} />
           <InputField label="State" name="address.state" value={formData.address.state} handleChange={handleChange} />
 
-          
+          {/* Blood Group and Gender */}
+          <DropdownField label="Blood Group" name="bloodGroup" value={formData.bloodGroup} handleChange={handleChange} options={["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"]} />
+          <DropdownField label="Gender" name="gender" value={formData.gender} handleChange={handleChange} options={["Male", "Female", "Others"]} />
+
           <div className="flex justify-center mt-6">
             <button
               type="submit"
               className="bg-[#E63946] text-white px-6 py-3 rounded-lg text-lg hover:bg-[#D62828]"
             >
-              Register as Blood Bank
+              Register as Donor
             </button>
           </div>
         </form>
@@ -160,8 +180,8 @@ function BloodBankRegistrationForm() {
       <section className="text-center py-8 bg-gray-100">
         <p className="text-lg text-gray-700">
           Already have an account?{" "}
-          <Link to="/login-bloodBank" className="text-[#E63946] font-semibold">
-            Login as Blood Bank
+          <Link to="/login-donor" className="text-[#E63946] font-semibold">
+            Login as Donor
           </Link>
         </p>
       </section>
@@ -183,7 +203,7 @@ function InputField({ label, name, value, handleChange, type = "text" }) {
         value={value}
         onChange={handleChange}
         className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
-        placeholder={` ${label}`}
+        placeholder={`Enter your ${label.toLowerCase()}`}
       />
     </div>
   );
@@ -214,4 +234,4 @@ function DropdownField({ label, name, value, handleChange, options }) {
   );
 }
 
-export default BloodBankRegistrationForm;
+export default DonorRegistrationForm;
